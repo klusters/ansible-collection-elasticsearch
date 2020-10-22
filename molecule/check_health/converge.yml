@@ -6,4 +6,3 @@
 
   roles:
     - role: klusters.elasticsearch.check_health
-        
