@@ -1,0 +1,48 @@
+---
+
+name: "klusters.elasticsearch.check_health"
+
+on:
+  push:
+    paths:
+      - 'roles/check_health/**'
+      - 'molecule/check_health/**'
+      - '.github/workflows/check_health.yml'
+      - 'molecule/common/**'
+
+jobs:
+  molecule:
+    runs-on: ubuntu-latest
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      MOLECULE_ES_VERSION: ${{ matrix.molecule_es_version }}
+    strategy:
+      fail-fast: true
+      matrix:
+        collection_role:
+        - check_health
+        molecule_es_version:
+        - 6.8.12
+        - 7.9.2
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+      with:
+        path: ansible_collections/klusters/elasticsearch
+
+    - name: Set up Python 3
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install Python dependencies
+      working-directory: ansible_collections/klusters/elasticsearch
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r molecule/${{ matrix.collection_role }}/requirements.txt
+
+    - name: Run tests
+      working-directory: ansible_collections/klusters/elasticsearch
+      run: |
+        molecule test -s ${{ matrix.collection_role }}

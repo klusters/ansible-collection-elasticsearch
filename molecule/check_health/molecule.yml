@@ -1,0 +1,26 @@
+---
+
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+lint: |
+  yamllint .
+  ansible-lint
+
+platforms:
+- name: instance
+  image: elasticsearch:${MOLECULE_ES_VERSION:-7.9.2}
+  volumes:
+  - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  ports:
+  - 9200:9200
+  env:
+    discovery.type: single-node
+
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}

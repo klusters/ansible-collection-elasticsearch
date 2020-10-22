@@ -1,0 +1,11 @@
+{%- set nodes_infos = {} -%}
+{%- for key, subkeys in es_nodes.json['nodes'].items() -%}
+{{ nodes_infos.update({
+    subkeys.name: {
+      'version' : subkeys.version,
+      'heap': subkeys.jvm.mem.heap_max_in_bytes |filesizeformat(true)
+    }
+  })
+}}
+{%- endfor -%}
+{{nodes_infos}}

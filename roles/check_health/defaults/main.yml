@@ -1,0 +1,14 @@
+---
+
+es_api_scheme: "http"
+es_api_host: "localhost"
+es_api_port: 9200
+es_api_uri: "{{ es_api_scheme }}://{{ es_api_host }}:{{ es_api_port }}"
+es_api_cluster_health: "_cluster/health"
+es_api_cluster_nodes: "_nodes"
+es_api_basic_auth_username: 'elastic'
+es_api_basic_auth_password: 'changeme'
+
+es_rolling_update: no
+
+...

@@ -1,0 +1,70 @@
+---
+
+- name: Wait for elasticsearch to startup
+  wait_for: host={{ es_api_host }} port={{ es_api_port }} delay=30 connect_timeout=1 timeout=120
+
+- name: Check if no shard is relocating and status green
+  uri:
+    url: "{{ es_api_uri }}/{{ es_api_cluster_health }}"
+    method: GET
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: es_health
+  until:
+    - es_health.json.relocating_shards == 0
+    - es_health.json.status == 'green'
+  retries: 240 #  = 20 mins (240*60/5)
+  delay: 5 # Every 5 seconds
+  when: es_rolling_update|bool
+
+- name: Get Elasticsearch Cluster info
+  uri:
+    url: "{{ es_api_uri }}"
+    method: GET
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: es_cluster
+
+- name: fail when cluster bootstrap failed
+  fail:
+    msg: "Cluster uuid should be set. Got cluster_uuid: {{ es_cluster.json.cluster_uuid }}"
+  when: es_cluster.json.cluster_uuid == '_na_'
+
+- name: Get Elasticsearch Status
+  uri:
+    url: "{{ es_api_uri }}/{{ es_api_cluster_health }}"
+    method: GET
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: es_health
+
+- name: fail when status is not green
+  fail:
+    msg: "Cluster status should be green. Got status: {{ es_health.json.status }}"
+  when: es_health.json.status != 'green'
+
+- name: Get Elasticsearch Nodes
+  uri:
+    url: "{{ es_api_uri }}/{{ es_api_cluster_nodes }}"
+    method: GET
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: no
+  register: es_nodes
+
+- name: Print Cluster nodes infos
+  debug:
+    msg: "{{ lookup('template', 'render_nodes.j2') }}"
+
+...
