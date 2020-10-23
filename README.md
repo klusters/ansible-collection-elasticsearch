@@ -7,7 +7,7 @@ Ansible collection that holds roles, that can be used with Elasticsearch Cluster
 
 | Role      | Build Status                                                                                                                                                                                                                                                        | Documentation                                                                                          |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-|  check_elasticsearch   | ![klusters.elasticsearch.check_health](https://github.com/klusters/ansible-collection-elasticsearch/workflows/klusters.elasticsearch.check_health/badge.svg)          | [Documentation](https://github.com/klusters/ansible-collection-elasticsearch/tree/master/roles/etc_hosts)    |
+|  check_elasticsearch   | ![klusters.elasticsearch.check_elasticsearch](https://github.com/klusters/ansible-collection-elasticsearch/workflows/klusters.elasticsearch.check_health/badge.svg)          | [Documentation](https://github.com/klusters/ansible-collection-elasticsearch/tree/main/roles/check_health)    |
 
 ## Usage
 
