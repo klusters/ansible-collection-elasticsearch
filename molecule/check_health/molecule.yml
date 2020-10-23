@@ -11,15 +11,15 @@ lint: |
   ansible-lint
 
 platforms:
-- name: instance
+- name: elasticsearch
   image: elasticsearch:${MOLECULE_ES_VERSION:-7.9.2}
   volumes:
   - /sys/fs/cgroup:/sys/fs/cgroup:ro
-  ports:
+  published_ports:
   - 9200:9200
   env:
     discovery.type: single-node
-
+  command: eswrapper
 provisioner:
   name: ansible
   playbooks:
