@@ -11,6 +11,8 @@ es_security_api: '_security'
 
 es_validate_certs: no
 
+es_delete_unmanaged_native: true
+
 es_roles:
   native:
     sample_role_1:
