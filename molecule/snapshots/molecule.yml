@@ -1,0 +1,46 @@
+---
+
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+lint: |
+  yamllint .
+  ansible-lint
+
+platforms:
+- name: elasticsearch
+  image: elasticsearch:${MOLECULE_ES_VERSION:-7.9.3}
+  volumes:
+  - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  - my_fs_backup_location:/my_fs_backup_location
+  published_ports:
+  - 9200:9200
+  env:
+    discovery.type: single-node
+    path.repo: /my_fs_backup_location
+  command: |
+    eswrapper & &&\
+    chown 1000 /my_fs_backup_location
+    
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+scenario:
+  test_sequence:
+    - dependency
+    - lint
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # - idempotence # asking to create the same snapshot twice should fail
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
