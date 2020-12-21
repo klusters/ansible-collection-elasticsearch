@@ -4,7 +4,7 @@ version: '2.2'
 
 services:
   create_certs:
-    container_name: create_certs
+    container_name: create_certs{{ lookup('env','MOLECULE_ES_VERSION') }}
     image: elasticsearch:{{ lookup('env','MOLECULE_ES_VERSION') }}
     command: >
       bash -c '
