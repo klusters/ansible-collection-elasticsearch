@@ -14,7 +14,7 @@
   check_mode: no
 
 - name: set fact reserved_users equals user_list_response.json
-  set_fact: reserved_users={{ user_list_response.json | filter_reserved }}
+  set_fact: reserved_users={{ user_list_response.json | klusters.elasticsearch.filter_reserved }}
   when: manage_native_users
 
 - name: set fact current_users equals user_list_response.json.keys not including reserved
@@ -120,7 +120,7 @@
   check_mode: no
 
 - name: set fact reserved roles
-  set_fact: reserved_roles={{ role_list_response.json | filter_reserved }}
+  set_fact: reserved_roles={{ role_list_response.json | klusters.elasticsearch.filter_reserved }}
   when: manage_native_roles
 
 - name: set fact current roles
