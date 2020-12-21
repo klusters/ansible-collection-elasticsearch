@@ -1,0 +1,11 @@
+---
+
+- name: Destroy
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Clean ES cluster
+      community.general.docker_compose:
+        project_src: ../es_xpack
+        files: ['es_cluster.yml', 'create_certs.yml']
+        state: absent

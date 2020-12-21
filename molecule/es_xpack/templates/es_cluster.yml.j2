@@ -1,0 +1,43 @@
+version: '2.2'
+
+services:
+{% for instance in molecule_yml.platforms %}
+  {{ instance.name }}:
+    container_name: {{ instance.name }}
+    image: {{ instance.image }}
+    environment:
+      - node.name={{ instance.name }}
+      - discovery.seed_hosts={{ molecule_yml.platforms|join(',', attribute='name') }}
+      - cluster.initial_master_nodes={{ molecule_yml.platforms|join(',', attribute='name') }}
+      - ELASTIC_PASSWORD=$ELASTIC_PASSWORD 
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.license.self_generated.type=trial 
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=true
+      - xpack.security.http.ssl.key=$CERTS_DIR/{{ instance.name }}/{{ instance.name }}.key
+      - xpack.security.http.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.http.ssl.certificate=$CERTS_DIR/{{ instance.name }}/{{ instance.name }}.crt
+      - xpack.security.transport.ssl.enabled=true
+      - xpack.security.transport.ssl.verification_mode=certificate 
+      - xpack.security.transport.ssl.certificate_authorities=$CERTS_DIR/ca/ca.crt
+      - xpack.security.transport.ssl.certificate=$CERTS_DIR/{{ instance.name }}/{{ instance.name }}.crt
+      - xpack.security.transport.ssl.key=$CERTS_DIR/{{ instance.name }}/{{ instance.name }}.key
+    volumes: ['certs:$CERTS_DIR']
+{% if loop.first %}
+    ports:
+      - 9200:9200
+    healthcheck:
+      test: curl --cacert $CERTS_DIR/ca/ca.crt -s https://localhost:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
+      interval: 30s
+      timeout: 10s
+      retries: 5
+{% endif %}
+{% if loop.last %}
+  wait_until_ready:
+    image: {{ instance.image }}
+    command: /usr/bin/true
+    depends_on: {"{{ molecule_yml.platforms | map(attribute='name') | first}}": {"condition": "service_healthy"}}
+{% endif %}
+{% endfor %}
+
+volumes: {"certs"}

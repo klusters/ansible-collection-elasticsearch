@@ -1,0 +1,10 @@
+galaxy_info:
+  author: Anis FATHALLAH
+  description: Manage Elasticsearch Users & Roles
+  company: ''
+
+  license: license MIT
+  min_ansible_version: 2.9
+  galaxy_tags: ["elasticsearch", "users", "roles"]
+
+dependencies: []

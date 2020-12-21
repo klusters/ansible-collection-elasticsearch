@@ -1,13 +1,13 @@
 ---
 
-name: "klusters.elasticsearch.check_health"
+name: "klusters.elasticsearch.users_and_roles"
 
 on:
   push:
     paths:
-      - 'roles/check_health/**'
-      - 'molecule/check_health/**'
-      - '.github/workflows/check_health.yml'
+      - 'roles/users_and_roles/**'
+      - 'molecule/users_and_roles/**'
+      - '.github/workflows/users_and_roles.yml'
       - 'molecule/common/**'
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       fail-fast: true
       matrix:
         collection_role:
-        - check_health
+        - users_and_roles
         molecule_es_version:
         - 6.8.12
         - 7.9.3
