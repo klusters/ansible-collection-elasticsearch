@@ -4,7 +4,7 @@ version: '2.2'
 
 services:
   create_certs:
-    container_name: {{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=8') }}
+    container_name: certs_{{ lookup('env','MOLECULE_ES_VERSION') }}
     image: elasticsearch:{{ lookup('env','MOLECULE_ES_VERSION') }}
     command: >
       bash -c '
