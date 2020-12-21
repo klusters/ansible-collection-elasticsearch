@@ -24,11 +24,6 @@
   set_fact: manage_native_realm=true
   when: (es_users is defined and es_users.native is defined) or (es_roles is defined and es_roles.native is defined)
 
-#-----------------------------FILE BASED REALM----------------------------------------
-
-- include: elasticsearch-security-file.yml
-  when: (es_users is defined and es_users.file is defined) or (es_roles is defined and es_roles.file is defined)
-
 #-----------------------------NATIVE REALM----------------------------------------
 
 - name: elasticsearch-security-native.yml

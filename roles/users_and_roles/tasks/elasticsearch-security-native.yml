@@ -31,7 +31,7 @@
 
 - name: Update API User Password
   uri:
-    url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{ es_api_basic_auth_username}}/_password"
+    url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{ es_api_basic_auth_username }}/_password"
     method: POST
     body_format: json
     body: "{ \"password\":\"{{ native_users[es_api_basic_auth_username].password }}\" }"
@@ -52,7 +52,7 @@
 
 - name: Delete Native Users
   uri:
-    url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{item}}"
+    url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{ item }}"
     method: DELETE
     status_code: 200
     user: "{{ es_api_basic_auth_username }}"
@@ -68,7 +68,7 @@
 
 - name: debug message
   debug:
-    msg: "WARNING: YOU CAN ONLY CHANGE THE PASSWORD FOR RESERVED USERS IN THE NATIVE REALM. ANY ROLE CHANGES WILL BE IGNORED: {{users_to_ignore}}"
+    msg: "WARNING: YOU CAN ONLY CHANGE THE PASSWORD FOR RESERVED USERS IN THE NATIVE REALM. ANY ROLE CHANGES WILL BE IGNORED: {{ users_to_ignore }}"
   when: manage_native_users and users_to_ignore | length > 0
 
 - name: Update Reserved User Passwords
@@ -150,7 +150,7 @@
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: manage_native_roles  and es_delete_unmanaged_native
-  with_items: "{{roles_to_remove | default([]) }}"
+  with_items: "{{ roles_to_remove | default([]) }}"
 
 - name: set fact roles_to_modify
   set_fact: roles_to_modify={{ es_roles.native.keys() | list | difference (reserved_roles) }}
@@ -161,7 +161,7 @@
     url: "{{ es_api_uri }}/{{ es_security_api }}/role/{{ item | urlencode }}"
     method: POST
     body_format: json
-    body: "{{ es_roles.native[item] | to_json}}"
+    body: "{{ es_roles.native[item] | to_json }}"
     status_code: 200
     user: "{{ es_api_basic_auth_username }}"
     password: "{{ es_api_basic_auth_password }}"
