@@ -21,13 +21,11 @@
       community.general.docker_compose:
         project_src: ../es_xpack
         files: ['create_certs.yml']
-        remove_orphans: yes
 
     - name: Create ES cluster
       community.general.docker_compose:
         project_src: ../es_xpack
         files: ['es_cluster.yml']
-        remove_orphans: yes
 
     - name: Wait for elasticsearch to startup
       wait_for: host={{ es_api_host }} port={{ es_api_port }} delay=30 connect_timeout=1 timeout=120
