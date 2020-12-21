@@ -22,4 +22,3 @@
         project_src: ../es_xpack
         files: ['es_cluster.yml', 'create_certs.yml']
         state: absent
-        remove_orphans: yes
