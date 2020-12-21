@@ -18,7 +18,7 @@ jobs:
       ANSIBLE_FORCE_COLOR: 1
       MOLECULE_ES_VERSION: ${{ matrix.molecule_es_version }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         collection_role:
         - users_and_roles
