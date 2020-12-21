@@ -4,8 +4,8 @@
   uri:
     url: "{{ es_api_uri }}/{{ es_security_api }}/user"
     method: GET
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     status_code: 200
     validate_certs: "{{ es_validate_certs }}"
@@ -31,19 +31,19 @@
 
 - name: Update API User Password
   uri:
-    url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{es_api_basic_auth_username}}/_password"
+    url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{ es_api_basic_auth_username}}/_password"
     method: POST
     body_format: json
-    body: "{ \"password\":\"{{native_users[es_api_basic_auth_username].password}}\" }"
+    body: "{ \"password\":\"{{ native_users[es_api_basic_auth_username].password }}\" }"
     status_code: 200
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: change_api_password
 
 - name: set fact es_api_basic_auth_password
-  set_fact: es_api_basic_auth_password={{native_users[es_api_basic_auth_username].password}}
+  set_fact: es_api_basic_auth_password={{ native_users[es_api_basic_auth_username].password }}
   when: change_api_password
 
 - name: set fact users_to_remove
@@ -55,8 +55,8 @@
     url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{item}}"
     method: DELETE
     status_code: 200
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: manage_native_users and es_delete_unmanaged_native
@@ -76,10 +76,10 @@
     url: "{{ es_api_uri }}/{{ es_security_api }}/user/{{ item | urlencode }}/_password"
     method: POST
     body_format: json
-    body: "{ \"password\":\"{{native_users[item].password}}\" }"
+    body: "{ \"password\":\"{{ native_users[item].password }}\" }"
     status_code: 200
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: native_users[item].password is defined
@@ -97,8 +97,8 @@
     body_format: json
     body: "{{ native_users[item] | to_json }}"
     status_code: 200
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: manage_native_users
@@ -110,8 +110,8 @@
     url: "{{ es_api_uri }}/{{ es_security_api }}/role"
     method: GET
     body_format: json
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     status_code: 200
     validate_certs: "{{ es_validate_certs }}"
@@ -133,7 +133,7 @@
 
 - name: debug message
   debug:
-    msg: "WARNING: YOU CANNOT CHANGE RESERVED ROLES. THE FOLLOWING WILL BE IGNORED: {{roles_to_ignore}}"
+    msg: "WARNING: YOU CANNOT CHANGE RESERVED ROLES. THE FOLLOWING WILL BE IGNORED: {{ roles_to_ignore }}"
   when: manage_native_roles and roles_to_ignore | length > 0
 
 - name: set fact roles_to_remove
@@ -145,8 +145,8 @@
     url: "{{ es_api_uri }}/{{ es_security_api }}/role/{{ item | urlencode }}"
     method: DELETE
     status_code: 200
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: manage_native_roles  and es_delete_unmanaged_native
@@ -163,8 +163,8 @@
     body_format: json
     body: "{{ es_roles.native[item] | to_json}}"
     status_code: 200
-    user: "{{es_api_basic_auth_username}}"
-    password: "{{es_api_basic_auth_password}}"
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: manage_native_roles
