@@ -1,0 +1,20 @@
+galaxy_info:
+  author: Klusters
+  description: Create Elasticsearch Snapshots and Snapshots Repositories
+  company: ''
+
+  license: license MIT
+  min_ansible_version: 2.9
+  galaxy_tags: ["elasticsearch", "snapshot"]
+
+  platforms:
+  - name: EL
+    versions:
+    - 8
+    - 7
+  - name: Ubuntu
+    versions:
+      - xenial
+      - bionic
+
+dependencies: []
