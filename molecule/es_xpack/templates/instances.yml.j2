@@ -1,0 +1,9 @@
+instances:
+{% for instance in molecule_yml.platforms %}
+- name: {{ instance.name }}
+  dns:
+  - {{ instance.name }}
+  - localhost
+  ip:
+  - 127.0.0.1
+{% endfor %}

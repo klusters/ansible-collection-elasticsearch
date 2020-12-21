@@ -1,0 +1,34 @@
+---
+
+- name: set fact change_api_password to false
+  set_fact: change_api_password=false
+
+- name: set fact manage_native_users to false
+  set_fact: manage_native_users=false
+
+- name: set fact manage_native_users to true
+  set_fact: manage_native_users=true
+  when: es_users is defined and es_users.native is defined and es_users.native.keys() | list | length > 0
+
+- name: set fact manage_native_role to false
+  set_fact: manage_native_roles=false
+
+- name: set fact manage_native_roles to true
+  set_fact: manage_native_roles=true
+  when: es_roles is defined and es_roles.native is defined and es_roles.native.keys() | list | length > 0
+
+- name: set fact manage_native_realm to false
+  set_fact: manage_native_realm=false
+
+- name: set fact manage_native_realm to true
+  set_fact: manage_native_realm=true
+  when: (es_users is defined and es_users.native is defined) or (es_roles is defined and es_roles.native is defined)
+
+#-----------------------------NATIVE REALM----------------------------------------
+
+- name: elasticsearch-security-native.yml
+  include: elasticsearch-security-native.yml
+  when: manage_native_realm | bool
+  run_once: True
+
+...

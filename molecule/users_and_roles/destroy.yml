@@ -1,0 +1,24 @@
+---
+
+- name: Destroy
+  hosts: localhost
+  gather_facts: no
+
+  vars_files: ['../../roles/users_and_roles/defaults/main.yml']
+
+  pre_tasks:
+    - name: Generate templates based on molecule platforms
+      template:
+        src: '{{ item }}'
+        dest: ../es_xpack/{{ item | basename | regex_replace('\.j2$', '') }}
+        mode: 0644
+      with_fileglob:
+      - ../es_xpack/templates/*.j2
+      - ../es_xpack/templates/.*.j2
+
+  tasks:
+    - name: Clean ES cluster
+      community.general.docker_compose:
+        project_src: ../es_xpack
+        files: ['es_cluster.yml', 'create_certs.yml']
+        state: absent
