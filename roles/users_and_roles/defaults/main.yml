@@ -9,9 +9,15 @@ es_api_port: 9200
 es_api_uri: "{{ es_api_scheme }}://{{ es_api_host }}:{{ es_api_port }}"
 es_security_api: '_security'
 
+es_k8s_namespace: default
+es_cluster_name: basic-cluster
+
 es_validate_certs: no
 
 es_delete_unmanaged_native: true
+
+es_secrets_mode_enabled: no
+es_secrets_mode: k8s
 
 es_roles:
   native:
@@ -42,6 +48,7 @@ es_roles:
 #
 # https://github.com/elastic/ansible-elasticsearch/blob/7.9.3/README.md#installing-x-pack-features
 
+
 es_users:
   native:
     dummy_user_1:
@@ -52,7 +59,6 @@ es_users:
       password: 'dummy_password_2'
       roles:
       - sample_role_2
-
     metricbeat_collect_es:
       password: 'dummy_password_3'
       roles:
@@ -75,3 +81,5 @@ es_users:
 #       - user_2_role_2 # from es_roles.yml or system default roles
 #
 # https://github.com/elastic/ansible-elasticsearch/blob/7.9.3/README.md#installing-x-pack-features
+
+...
