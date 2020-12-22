@@ -24,11 +24,19 @@
   set_fact: manage_native_realm=true
   when: (es_users is defined and es_users.native is defined) or (es_roles is defined and es_roles.native is defined)
 
+
+#--------------------------SECRETS MANAGEMENT-------------------------------------
+
+- name: Manage ES credentials with secrets
+  include: secrets.yml
+  when: es_secrets_mode_enabled | bool
+  run_once: yes
+
 #-----------------------------NATIVE REALM----------------------------------------
 
 - name: elasticsearch-security-native.yml
   include: elasticsearch-security-native.yml
   when: manage_native_realm | bool
-  run_once: True
+  run_once: yes
 
 ...
