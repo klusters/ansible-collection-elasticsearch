@@ -6,12 +6,3 @@
 
   roles:
     - role: klusters.elasticsearch.users_and_roles
-      vars:
-        es_secrets_mode_enabled: yes
-        es_secrets_mode: k8s
-
-        es_users:
-          native:
-            dummy_user_1:
-              password: 'dummy_password_1'
-              roles: []
