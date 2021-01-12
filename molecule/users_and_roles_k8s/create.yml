@@ -4,7 +4,9 @@
   hosts: localhost
   gather_facts: no
 
-  vars_files: ['../../roles/users_and_roles/defaults/main.yml']
+  vars_files:
+  - '../../roles/users_and_roles/defaults/main.yml'
+  - 'group_vars/all/credentials.yml'
 
   pre_tasks:
     - name: Generate templates based on molecule platforms
