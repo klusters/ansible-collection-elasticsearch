@@ -1,0 +1,26 @@
+---
+
+- name: Create
+  hosts: localhost
+  gather_facts: no
+
+  vars_files: ['../../roles/users_and_roles/defaults/main.yml']
+
+  pre_tasks:
+    - name: Generate templates based on molecule platforms
+      template:
+        src: '{{ item }}'
+        dest: ../es_xpack/{{ item | basename | regex_replace('\.j2$', '') }}
+        mode: 0644
+      with_fileglob:
+      - ../es_xpack/templates/*.j2
+      - ../es_xpack/templates/.*.j2
+
+  tasks:
+    - name: Create ES certificates & cluster
+      community.general.docker_compose:
+        project_src: ../es_xpack
+        files: ['create_certs.yml', 'es_cluster.yml']
+
+    - name: Wait for elasticsearch to startup
+      wait_for: host={{ es_api_host }} port={{ es_api_port }} delay=30 connect_timeout=1 timeout=120

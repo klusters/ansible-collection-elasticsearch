@@ -1,0 +1,50 @@
+---
+
+name: "klusters.elasticsearch.users_and_roles_k8s"
+
+on:
+  push:
+    paths:
+      - 'roles/users_and_roles/**'
+      - 'molecule/users_and_roles_k8s/**'
+      - '.github/workflows/users_and_roles_k8s.yml'
+      - 'molecule/common/**'
+
+jobs:
+  molecule:
+    runs-on: ubuntu-latest
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+      MOLECULE_ES_VERSION: ${{ matrix.molecule_es_version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        collection_role:
+        - users_and_roles_k8s
+        molecule_es_version:
+        - 7.10.1
+    steps:
+    - name: Git checkout
+      uses: actions/checkout@v2
+      with:
+        path: ansible_collections/klusters/elasticsearch
+
+    - name: Set up KinD
+      uses: engineerd/setup-kind@v0.5.0
+
+    - name: Set up Python 3
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install Python dependencies
+      working-directory: ansible_collections/klusters/elasticsearch
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r molecule/${{ matrix.collection_role }}/requirements.txt
+
+    - name: Run tests
+      working-directory: ansible_collections/klusters/elasticsearch
+      run: |
+        molecule test -s ${{ matrix.collection_role }}
