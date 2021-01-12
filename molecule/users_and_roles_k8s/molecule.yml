@@ -1,0 +1,28 @@
+---
+
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+lint: |
+  yamllint .
+  ansible-lint
+
+platforms:
+- name: es01
+  image: elasticsearch:${MOLECULE_ES_VERSION:-7.9.2}
+# - name: es02
+#   image: elasticsearch:${MOLECULE_ES_VERSION:-7.9.2}
+# - name: es03
+#   image: elasticsearch:${MOLECULE_ES_VERSION:-7.9.2}
+provisioner:
+  name: ansible
+  playbooks:
+    create: create.yml
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}
+    destroy: destroy.yml
+  inventory:
+    links:
+      group_vars: group_vars

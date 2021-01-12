@@ -1,0 +1,17 @@
+---
+
+## k8s secrets limitation : k8s secrets name cannot contain '_'
+## '_' in username will be replaced by '-', so username in k8s secrets will be like : username | regex_replace('_', '-')
+
+es_users:
+  native:
+    dummy_user_1:
+      password: '{% if es_cluster_name + "-es-dummy-user-1-user" in found_k8s_secrets %}{{ lookup("k8s", kind="Secret", namespace=es_k8s_namespace, resource_name=es_cluster_name + "-es-dummy-user-1-user")["data"]["user_password"] | b64decode }}{% else %}{{ lookup("password", "/dev/null chars=ascii_letters,digits" ) }}{% endif %}'
+      roles:
+      - filebeat_role
+    dummy_user_2:
+      password: '{% if es_cluster_name + "-es-dummy-user-2-user" in found_k8s_secrets %}{{ lookup("k8s", kind="Secret", namespace=es_k8s_namespace, resource_name=es_cluster_name + "-es-dummy-user-2-user")["data"]["user_password"] | b64decode }}{% else %}{{ lookup("password", "/dev/null chars=ascii_letters,digits" ) }}{% endif %}'
+      roles:
+      - filebeat_role
+
+...

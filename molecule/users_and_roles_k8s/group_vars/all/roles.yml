@@ -1,0 +1,21 @@
+---
+
+es_roles:
+  native:
+    filebeat_role:
+      cluster:
+        - cluster:admin/ilm/put
+        - manage_index_templates
+        - monitor
+        - read_ilm
+        - cluster:admin/ingest/pipeline/get
+        - cluster:admin/ingest/pipeline/put
+      indices:
+        - names: 'filebeat-*'
+          privileges:
+            - create_index
+            - create_doc
+            - view_index_metadata
+            - manage
+
+...
