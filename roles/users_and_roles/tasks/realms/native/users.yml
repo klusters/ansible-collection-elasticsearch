@@ -10,24 +10,20 @@
     status_code: 200
     validate_certs: "{{ es_validate_certs }}"
   register: user_list_response
-  when: manage_native_users
   check_mode: no
 
 - name: set fact reserved_users equals user_list_response.json
   set_fact: reserved_users={{ user_list_response.json | klusters.elasticsearch.filter_reserved }}
-  when: manage_native_users
 
 - name: set fact current_users equals user_list_response.json.keys not including reserved
   set_fact: current_users={{ user_list_response.json.keys() | list | difference (reserved_users) }}
-  when: manage_native_users
 
 - name: set fact native_users
   set_fact: native_users={{ es_users.native }}
-  when: manage_native_users
 
-- name: set fact change_api_password to true
-  set_fact: change_api_password=true
-  when: manage_native_users and es_api_basic_auth_username in native_users and native_users[es_api_basic_auth_username].password is defined
+- name: set fact es_api_change_password to true
+  set_fact: es_api_change_password=true
+  when: es_api_basic_auth_username in native_users and native_users[es_api_basic_auth_username].password is defined
 
 - name: Update API User Password
   uri:
@@ -40,15 +36,14 @@
     password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
-  when: change_api_password
+  when: es_api_change_password
 
 - name: set fact es_api_basic_auth_password
   set_fact: es_api_basic_auth_password={{ native_users[es_api_basic_auth_username].password }}
-  when: change_api_password
+  when: es_api_change_password
 
 - name: set fact users_to_remove
   set_fact: users_to_remove={{ current_users | difference ( native_users.keys() | list) }}
-  when: manage_native_users
 
 - name: Delete Native Users
   uri:
@@ -59,17 +54,16 @@
     password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
-  when: manage_native_users and es_delete_unmanaged_native
+  when: es_delete_unmanaged_native
   with_items: "{{ users_to_remove | default([]) }}"
 
 - name: set fact users_to_ignore
   set_fact: users_to_ignore={{ native_users.keys() | list | intersect (reserved_users) }}
-  when: manage_native_users
 
 - name: debug message
   debug:
     msg: "WARNING: YOU CAN ONLY CHANGE THE PASSWORD FOR RESERVED USERS IN THE NATIVE REALM. ANY ROLE CHANGES WILL BE IGNORED: {{ users_to_ignore }}"
-  when: manage_native_users and users_to_ignore | length > 0
+  when: users_to_ignore | length > 0
 
 - name: Update Reserved User Passwords
   uri:
@@ -83,12 +77,10 @@
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
   when: native_users[item].password is defined
-  no_log: True
   with_items: "{{ users_to_ignore | default([]) }}"
 
 - name: set fact users_to_modify
   set_fact: users_to_modify={{ native_users.keys() | list | difference (reserved_users) }}
-  when: manage_native_users
 
 - name: Update Non-Reserved Native User Details
   uri:
@@ -101,71 +93,4 @@
     password: "{{ es_api_basic_auth_password }}"
     force_basic_auth: yes
     validate_certs: "{{ es_validate_certs }}"
-  when: manage_native_users
-  no_log: True
   with_items: "{{ users_to_modify | default([]) }}"
-
-- name: List Native Roles
-  uri:
-    url: "{{ es_api_uri }}/{{ es_security_api }}/role"
-    method: GET
-    body_format: json
-    user: "{{ es_api_basic_auth_username }}"
-    password: "{{ es_api_basic_auth_password }}"
-    force_basic_auth: yes
-    status_code: 200
-    validate_certs: "{{ es_validate_certs }}"
-  register: role_list_response
-  when: manage_native_roles
-  check_mode: no
-
-- name: set fact reserved roles
-  set_fact: reserved_roles={{ role_list_response.json | klusters.elasticsearch.filter_reserved }}
-  when: manage_native_roles
-
-- name: set fact current roles
-  set_fact: current_roles={{ role_list_response.json.keys() | list | difference (reserved_roles) }}
-  when: manage_native_roles
-
-- name: set fact roles to ignore
-  set_fact: roles_to_ignore={{ es_roles.native.keys() | list | intersect (reserved_roles) | default([]) }}
-  when: manage_native_roles
-
-- name: debug message
-  debug:
-    msg: "WARNING: YOU CANNOT CHANGE RESERVED ROLES. THE FOLLOWING WILL BE IGNORED: {{ roles_to_ignore }}"
-  when: manage_native_roles and roles_to_ignore | length > 0
-
-- name: set fact roles_to_remove
-  set_fact: roles_to_remove={{ current_roles | difference ( es_roles.native.keys() | list) }}
-  when: manage_native_roles
-
-- name: Delete Native Roles
-  uri:
-    url: "{{ es_api_uri }}/{{ es_security_api }}/role/{{ item | urlencode }}"
-    method: DELETE
-    status_code: 200
-    user: "{{ es_api_basic_auth_username }}"
-    password: "{{ es_api_basic_auth_password }}"
-    force_basic_auth: yes
-    validate_certs: "{{ es_validate_certs }}"
-  when: manage_native_roles  and es_delete_unmanaged_native
-  with_items: "{{ roles_to_remove | default([]) }}"
-
-- name: set fact roles_to_modify
-  set_fact: roles_to_modify={{ es_roles.native.keys() | list | difference (reserved_roles) }}
-  when: manage_native_roles
-
-- name: Update Native Roles
-  uri:
-    url: "{{ es_api_uri }}/{{ es_security_api }}/role/{{ item | urlencode }}"
-    method: POST
-    body_format: json
-    body: "{{ es_roles.native[item] | to_json }}"
-    status_code: 200
-    user: "{{ es_api_basic_auth_username }}"
-    password: "{{ es_api_basic_auth_password }}"
-    force_basic_auth: yes
-    validate_certs: "{{ es_validate_certs }}"
-  when: manage_native_roles
-  with_items: "{{ roles_to_modify | default([]) }}"

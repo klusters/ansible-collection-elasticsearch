@@ -1,0 +1,59 @@
+---
+
+- name: List Native Roles
+  uri:
+    url: "{{ es_api_uri }}/{{ es_security_api }}/role"
+    method: GET
+    body_format: json
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    status_code: 200
+    validate_certs: "{{ es_validate_certs }}"
+  register: role_list_response
+  check_mode: no
+
+- name: set fact reserved roles
+  set_fact: reserved_roles={{ role_list_response.json | klusters.elasticsearch.filter_reserved }}
+
+- name: set fact current roles
+  set_fact: current_roles={{ role_list_response.json.keys() | list | difference (reserved_roles) }}
+
+- name: set fact roles to ignore
+  set_fact: roles_to_ignore={{ es_roles.native.keys() | list | intersect (reserved_roles) | default([]) }}
+
+- name: debug message
+  debug:
+    msg: "WARNING: YOU CANNOT CHANGE RESERVED ROLES. THE FOLLOWING WILL BE IGNORED: {{ roles_to_ignore }}"
+  when: roles_to_ignore | length > 0
+
+- name: set fact roles_to_remove
+  set_fact: roles_to_remove={{ current_roles | difference ( es_roles.native.keys() | list) }}
+
+- name: Delete Native Roles
+  uri:
+    url: "{{ es_api_uri }}/{{ es_security_api }}/role/{{ item | urlencode }}"
+    method: DELETE
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: "{{ es_validate_certs }}"
+  when: es_delete_unmanaged_native
+  with_items: "{{ roles_to_remove | default([]) }}"
+
+- name: set fact roles_to_modify
+  set_fact: roles_to_modify={{ es_roles.native.keys() | list | difference (reserved_roles) }}
+
+- name: Update Native Roles
+  uri:
+    url: "{{ es_api_uri }}/{{ es_security_api }}/role/{{ item | urlencode }}"
+    method: POST
+    body_format: json
+    body: "{{ es_roles.native[item] | to_json }}"
+    status_code: 200
+    user: "{{ es_api_basic_auth_username }}"
+    password: "{{ es_api_basic_auth_password }}"
+    force_basic_auth: yes
+    validate_certs: "{{ es_validate_certs }}"
+  with_items: "{{ roles_to_modify | default([]) }}"
